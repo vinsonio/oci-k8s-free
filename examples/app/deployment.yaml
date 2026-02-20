@@ -1,0 +1,60 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: example-app
+  namespace: example-app
+  labels:
+    app: example-app
+    app.kubernetes.io/name: example-app
+    app.kubernetes.io/part-of: example-app
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: example-app
+  template:
+    metadata:
+      labels:
+        app: example-app
+        app.kubernetes.io/name: example-app
+    spec:
+      # ARM-compatible image (linux/arm64) — required for VM.Standard.A1.Flex nodes
+      # Fully-qualified name required: OKE nodes (Oracle Linux 9) enforce short-name-mode,
+      # rejecting unqualified names like nginx:stable-alpine.
+      containers:
+        - name: nginx
+          image: docker.io/library/nginx:stable-alpine
+          ports:
+            - name: http
+              containerPort: 80
+              protocol: TCP
+          resources:
+            requests:
+              cpu: "50m"
+              memory: "64Mi"
+            limits:
+              cpu: "200m"
+              memory: "128Mi"
+          livenessProbe:
+            httpGet:
+              path: /
+              port: http
+            initialDelaySeconds: 10
+            periodSeconds: 15
+            timeoutSeconds: 5
+            failureThreshold: 3
+          readinessProbe:
+            httpGet:
+              path: /
+              port: http
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            timeoutSeconds: 3
+            failureThreshold: 3
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: false
+            runAsNonRoot: false
+      securityContext:
+        seccompProfile:
+          type: RuntimeDefault
