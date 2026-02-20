@@ -1,0 +1,41 @@
+# Example Terraform Variables
+# ⚠️  EXAMPLE ONLY - Replace with your actual values
+# See README.md Step 1 for how to obtain these values
+
+region                      = "us-phoenix-1"
+region_identifier           = "PHX"  # Short identifier (PHX, ASH, FRA, etc.) for Service Gateway
+compartment_ocid            = "ocid1.compartment.oc1..xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+kubernetes_version          = "v1.34.2"
+cluster_name                = "cluster1"
+image_id                    = "ocid1.image.oc1.xxx.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+
+# Security settings
+kubernetes_api_public_enabled = false
+# allowed_k8s_api_cidrs = ["203.0.113.0/24"]  # Uncomment to allow specific IPs
+
+# ⚠️  IMPORTANT: When kubernetes_api_public_enabled = false
+# You MUST have a way to access the private API endpoint to use kubectl:
+#   Option 1: OCI Bastion Service (below) - free, easiest for getting started
+#   Option 2: Site-to-Site VPN (below) - free, secure, requires on-prem VPN equipment
+#   Option 3: Temporarily set kubernetes_api_public_enabled = true
+
+# OCI Bastion Service (for private API access from anywhere)
+create_bastion = false  # Set to true to create OCI Bastion Service (Always Free)
+# bastion_client_cidr_allow_list = ["203.0.113.0/32"]  # Restrict to your IP for security (optional)
+
+# Site-to-Site VPN (for private API access from your office/on-premises)
+create_vpn = false  # Set to true if you have a VPN endpoint
+# cpe_ip_address = "203.0.113.100"        # Your VPN endpoint public IP (required if create_vpn = true)
+# customer_network_cidr = "192.168.0.0/16"  # Your on-premises network CIDR (required if create_vpn = true)
+
+# ℹ️  NOTE: Worker nodes are in PRIVATE subnets (secure default)
+# You'll see a warning in OCI Console about setting up a bastion host.
+# This is expected - nodes aren't directly accessible from the internet.
+# See README.md "Accessing Worker Nodes" for bastion setup if needed.
+
+# Scaling
+node_pool_size = 4
+
+# OCI Load Balancer (public ingress for Kubernetes workloads)
+create_load_balancer = false  # Set to true to create an OCI flexible LB (Always Free: 1 × 10 Mbps)
+# lb_backend_port = 30080     # NodePort exposed by your ingress controller (default: 30080)

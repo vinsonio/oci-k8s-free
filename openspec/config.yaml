@@ -1,13 +1,90 @@
 schema: spec-driven
 
-# Project context (optional)
-# This is shown to AI when creating artifacts.
-# Add your tech stack, conventions, style guides, domain knowledge, etc.
-# Example:
-#   context: |
-#     Tech stack: TypeScript, React, Node.js
-#     We use conventional commits
-#     Domain: e-commerce platform
+context: |
+  ## Project Overview
+  This is a Terraform project that provisions a free-tier, production-hardened Kubernetes cluster
+  on Oracle Cloud Infrastructure (OCI) using OKE (Oracle Container Engine for Kubernetes).
+  The entire setup runs within OCI's Always-Free tier constraints ($0/month).
+
+  ## Tech Stack
+  - Infrastructure-as-Code: Terraform >= 1.0
+  - Cloud Provider: Oracle Cloud Infrastructure (OCI), provider oracle/oci ~> 5.39
+  - Kubernetes: OKE Basic Cluster (free tier), OCI_VCN_IP_NATIVE CNI
+  - Compute: VM.Standard.A1.Flex (ARM / Ampere) — 1 OCPU, 6 GB RAM per node, max 4 nodes
+  - Networking: OCI VCN with 4 dedicated subnets
+  - Observability: OCI Logging + VCN Flow Logs (Always-Free: 10 GB/month)
+  - Access Options: OCI Bastion Service (SSH) and/or Site-to-Site IPSec VPN
+  - Ingress: OCI Flexible Load Balancer (Always-Free 10 Mbps, optional)
+  - CI/CD: GitHub Actions (terraform fmt, terraform validate, tflint)
+  - Versioning: release-please (conventional commits)
+
+  ## Repository Structure
+  ```
+  /                        # Root module: wires up all child modules
+  ├── main.tf              # Module instantiation (networking, kubernetes, bastion, vpn, observability)
+  ├── variables.tf         # Root-level input variables with validation
+  ├── outputs.tf           # Root-level outputs
+  ├── versions.tf          # Required provider versions
+  ├── terraform.tfvars     # User-supplied values (not committed)
+  ├── terraform.tfvars.example  # Example configuration
+  ├── availability-domains.tf  # Data source for OCI availability domains
+  └── modules/
+      ├── networking/      # VCN, subnets, security lists, route tables, gateways
+      ├── kubernetes/      # OKE cluster + node pool (pool1)
+      ├── bastion/         # Optional OCI Bastion Service (Always Free)
+      ├── vpn/             # Optional Site-to-Site IPSec VPN (Always Free)
+      ├── observability/   # OCI Logging log group + VCN flow logs
+      └── load-balancer/   # Optional OCI flexible LB 10 Mbps (Always Free)
+  ```
+
+  ## Networking Topology (VCN: 10.0.0.0/16)
+  | Subnet              | CIDR            | Type    | Egress route       |
+  |---------------------|-----------------|---------|---------------------|
+  | k8s_api             | 10.0.0.0/29     | Public  | Internet Gateway    |
+  | k8s_worker_nodes    | 10.0.1.0/24     | Private | NAT + Service GW    |
+  | k8s_pods            | 10.0.32.0/19    | Private | NAT + Service GW    |
+  | k8s_loadbalancers   | 10.0.2.0/24     | Public  | Internet Gateway    |
+
+  Security lists follow least-privilege explicit port ranges:
+  - API subnet: ingress 6443/12250 from worker/pod nodes only
+  - Worker nodes: ingress from load balancers (80/443/NodePort 30000-32767); egress to API, Oracle Services Network
+  - Pods: inter-pod TCP + DNS (port 53 TCP/UDP); egress to API and Oracle Services Network
+  - Load balancers: ingress 80/443 from internet; egress to worker nodes
+
+  ## Key Variables
+  - `compartment_ocid` — OCI compartment OCID (required)
+  - `region` / `region_identifier` — e.g. "us-phoenix-1" / "PHX"
+  - `kubernetes_version` — e.g. "v1.32.4"
+  - `cluster_name` — default "cluster1"
+  - `image_id` — Oracle Linux 9 OCID for worker nodes
+  - `node_pool_size` — 1–4 (validated; constrained by Always-Free A1 quota)
+  - `kubernetes_api_public_enabled` — default false (private API)
+  - `create_bastion` / `create_vpn` — toggle optional access modules
+
+  ## Coding Conventions
+  - Use conventional commits (feat:, fix:, chore:, docs:, refactor:)
+  - Terraform: 2-space indentation, `terraform fmt` enforced via CI
+  - Variables always have `description` and `type`; add `validation` blocks for constrained inputs
+  - Module outputs are prefixed by their resource type (e.g., `vcn_id`, `k8s_api_subnet_id`)
+  - Conditional resources use `count = var.flag ? 1 : 0` pattern
+  - Freeform tags on optional resources indicate their purpose
+  - Timeouts set on node pool (60 min) to handle private API endpoints gracefully
+
+  ## Always-Free Constraints (must not be violated)
+  - OKE: 1 BASIC_CLUSTER only
+  - Compute: 4 OCPU + 24 GB RAM total (A1 Flex) across all nodes
+  - Block Storage: 200 GB total boot volumes
+  - VCN Flow Logs: 10 GB/month ingestion
+  - Bastion: up to 5 instances
+  - VPN: up to 50 IPSec tunnels
+  - Load Balancer: 1 × 10 Mbps (optional, for ingress)
+
+  ## Security Posture
+  - Kubernetes API is private by default (`kubernetes_api_public_enabled = false`)
+  - PV encryption in transit enabled on node pool
+  - VCN Flow Logs always enabled for traffic auditing
+  - No broad `protocol = all` ingress rules on external-facing subnets
+  - Public API access is guarded by `allowed_k8s_api_cidrs` (IP allowlist)
 
 # Per-artifact rules (optional)
 # Add custom rules for specific artifacts.
