@@ -44,7 +44,7 @@ variable "backend_port" {
 
   validation {
     condition     = var.backend_port >= 30000 && var.backend_port <= 32767
-    error_message = "backend_port must be a valid Kubernetes NodePort in the range 30000-32767."
+    error_message = "The backend_port must be a valid Kubernetes NodePort in the range 30000-32767."
   }
 }
 
@@ -55,6 +55,6 @@ variable "backend_port_https" {
 
   validation {
     condition     = var.backend_port_https >= 30000 && var.backend_port_https <= 32767
-    error_message = "backend_port_https must be a valid Kubernetes NodePort in the range 30000-32767."
+    error_message = "The backend_port_https must be a valid Kubernetes NodePort in the range 30000-32767."
   }
 }
