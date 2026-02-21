@@ -22,6 +22,11 @@ Oracle Cloud Infrastructure (OCI) offers a generous Always Free tier. This proje
 - **Data Transfer:** 10 TB outbound data transfer per month.
 - **Public IPs:** 2 public IPv4 addresses.
 
+## 🗄️ Databases
+
+- **MySQL HeatWave:** 1 Always Free MySQL HeatWave DB System (1 ECPU, 50GB storage) and 1 HeatWave Cluster (1 Node, 16GB Memory).
+- **Autonomous Database:** 2 Always Free Autonomous Databases (ADW or ATP, up to 20 GB storage each) - not used by default in this project but available.
+
 ## ☸️ Managed Kubernetes (OKE)
 
 - **Cluster Fee:** OKE **Basic** clusters have no cluster management fee.

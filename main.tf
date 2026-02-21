@@ -10,6 +10,7 @@ module "networking" {
   region_identifier             = var.region_identifier
   kubernetes_api_public_enabled = var.kubernetes_api_public_enabled
   allowed_k8s_api_cidrs         = var.allowed_k8s_api_cidrs
+  create_mysql_heatwave         = var.create_mysql_heatwave
 }
 
 # Kubernetes cluster and node pool
@@ -97,4 +98,26 @@ module "ingress_controller" {
     module.kubernetes,
     module.networking
   ]
+}
+
+resource "random_password" "mysql_admin" {
+  count = var.create_mysql_heatwave ? 1 : 0
+
+  length           = 16
+  special          = true
+  override_special = "!#$%&*()-_=+[]{}<>:?"
+}
+
+# Optional OCI MySQL HeatWave Always Free DB System and Cluster
+# Enable with create_mysql_heatwave = true
+module "mysql" {
+  source = "./modules/mysql"
+
+  compartment_ocid      = var.compartment_ocid
+  mysql_subnet_id       = module.networking.mysql_subnet_id
+  admin_username        = var.mysql_admin_username
+  admin_password        = var.create_mysql_heatwave ? random_password.mysql_admin[0].result : ""
+  create_mysql_heatwave = var.create_mysql_heatwave
+
+  depends_on = [module.networking]
 }

@@ -27,3 +27,8 @@ output "k8s_loadbalancers_subnet_id" {
   description = "Load balancers subnet ID"
   value       = oci_core_subnet.k8s_loadbalancers.id
 }
+
+output "mysql_subnet_id" {
+  description = "MySQL subnet ID"
+  value       = var.create_mysql_heatwave ? oci_core_subnet.mysql[0].id : null
+}

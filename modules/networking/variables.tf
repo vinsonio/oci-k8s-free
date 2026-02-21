@@ -19,3 +19,9 @@ variable "allowed_k8s_api_cidrs" {
   type        = list(string)
   default     = []
 }
+
+variable "create_mysql_heatwave" {
+  description = "Whether to create a dedicated subnet and security rules for MySQL HeatWave."
+  type        = bool
+  default     = false
+}

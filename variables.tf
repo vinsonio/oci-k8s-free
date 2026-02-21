@@ -112,3 +112,15 @@ variable "lb_backend_port_https" {
   type        = number
   default     = 30443
 }
+
+variable "create_mysql_heatwave" {
+  description = "Whether to provision an OCI Always Free MySQL HeatWave DB System and Cluster."
+  type        = bool
+  default     = false
+}
+
+variable "mysql_admin_username" {
+  description = "MySQL database admin username"
+  type        = string
+  default     = "admin"
+}

@@ -11,6 +11,7 @@ Deploy a secure, production-hardened Kubernetes cluster on Oracle Cloud Infrastr
 - **Network Segmentation** — Dedicated subnets for API, worker nodes, pods, and load balancers
 - **Observability** — VCN Flow Logs for security auditing (10 GB/month Always-Free quota)
 - **High Availability** — Easy multi-AZ and autoscaling support (within free tier limits)
+- **Database Included** — Provision the Always-Free Oracle MySQL HeatWave DB System and Cluster
 - **Parameterized** — Typed variables, validation, and clear configuration
 
 📖 **See [Complete Always Free Resources Guide](docs/ALWAYS-FREE-RESOURCES.md)** for detailed quota information
@@ -339,6 +340,8 @@ kubectl debug node/<node-name> -it --image=ubuntu
 | VCN Flow Logs              | 10 GB/month              | Enabled (monitoring)     | $0     |
 | Logging                    | 10 GB ingestion/month    | ~1-5 GB/month            | $0     |
 | Bastion Service            | Up to 5 bastions         | Optional (SSH to nodes)  | $0     |
+| MySQL HeatWave DB System   | 1 ECPU, 50GB Storage     | Optional                 | $0     |
+| MySQL HeatWave Cluster     | 1 Node, 16GB Memory      | Optional                 | $0     |
 | Monitoring & Notifications | Included                 | Basic metrics            | $0     |
 | **Total Monthly Cost**     | **—**                    | **—**                    | **$0** |
 
@@ -406,6 +409,10 @@ allowed_k8s_api_cidrs = ["203.0.113.0/24"]  # Only used if public_enabled=true
 
 # Scaling (1-4 nodes for free tier A1 Compute)
 node_pool_size = 4
+
+# Database
+create_mysql_heatwave = false # Set to true to create Always Free MySQL DB System
+# mysql_admin_username  = "admin" # Admin username
 ```
 
 ### Variables with Validation

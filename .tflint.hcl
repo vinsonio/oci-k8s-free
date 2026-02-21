@@ -3,8 +3,6 @@ config {
   force  = false
 }
 
-
-
 # Terraform language rules
 rule "terraform_comment_syntax" {
   enabled = true

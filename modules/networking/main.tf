@@ -11,6 +11,9 @@ locals {
     },
     k8s_loadbalancers = {
       cidr_block = "10.0.2.0/24"
+    },
+    mysql = {
+      cidr_block = "10.0.3.0/24"
     }
   }
 
@@ -322,6 +325,30 @@ resource "oci_core_security_list" "k8s_worker_nodes" {
     }
   }
 
+  dynamic "egress_security_rules" {
+    for_each = var.create_mysql_heatwave ? [1] : []
+    content {
+      protocol    = "6"
+      destination = local.subnets.mysql.cidr_block
+      tcp_options {
+        max = "3306"
+        min = "3306"
+      }
+    }
+  }
+
+  dynamic "egress_security_rules" {
+    for_each = var.create_mysql_heatwave ? [1] : []
+    content {
+      protocol    = "6"
+      destination = local.subnets.mysql.cidr_block
+      tcp_options {
+        max = "33060"
+        min = "33060"
+      }
+    }
+  }
+
   ingress_security_rules {
     protocol = "6"
     source   = local.subnets.k8s_api.cidr_block
@@ -511,6 +538,30 @@ resource "oci_core_security_list" "k8s_pods" {
     }
   }
 
+  dynamic "egress_security_rules" {
+    for_each = var.create_mysql_heatwave ? [1] : []
+    content {
+      protocol    = "6"
+      destination = local.subnets.mysql.cidr_block
+      tcp_options {
+        max = "3306"
+        min = "3306"
+      }
+    }
+  }
+
+  dynamic "egress_security_rules" {
+    for_each = var.create_mysql_heatwave ? [1] : []
+    content {
+      protocol    = "6"
+      destination = local.subnets.mysql.cidr_block
+      tcp_options {
+        max = "33060"
+        min = "33060"
+      }
+    }
+  }
+
   ingress_security_rules {
     protocol = "all"
     source   = local.subnets.k8s_worker_nodes.cidr_block
@@ -582,6 +633,99 @@ resource "oci_core_security_list" "k8s_loadbalancers" {
     tcp_options {
       max = "80"
       min = "80"
+    }
+  }
+}
+
+resource "oci_core_subnet" "mysql" {
+  count = var.create_mysql_heatwave ? 1 : 0
+
+  cidr_block                = local.subnets.mysql.cidr_block
+  display_name              = "mysql"
+  dns_label                 = "mysql"
+  security_list_ids         = [oci_core_security_list.mysql[0].id]
+  compartment_id            = var.compartment_ocid
+  vcn_id                    = oci_core_virtual_network.k8s_vcn.id
+  route_table_id            = oci_core_route_table.mysql[0].id
+  dhcp_options_id           = oci_core_virtual_network.k8s_vcn.default_dhcp_options_id
+  prohibit_internet_ingress = true
+}
+
+resource "oci_core_route_table" "mysql" {
+  count = var.create_mysql_heatwave ? 1 : 0
+
+  compartment_id = var.compartment_ocid
+  vcn_id         = oci_core_virtual_network.k8s_vcn.id
+  display_name   = "routetable-mysql"
+
+  route_rules {
+    destination_type  = "SERVICE_CIDR_BLOCK"
+    destination       = "all-${local.lowercase_region_identifier}-services-in-oracle-services-network"
+    network_entity_id = oci_core_service_gateway.this.id
+  }
+}
+
+resource "oci_core_security_list" "mysql" {
+  count = var.create_mysql_heatwave ? 1 : 0
+
+  compartment_id = var.compartment_ocid
+  vcn_id         = oci_core_virtual_network.k8s_vcn.id
+  display_name   = "seclist-mysql"
+
+  egress_security_rules {
+    protocol         = "6"
+    destination_type = "SERVICE_CIDR_BLOCK"
+    destination      = "all-${local.lowercase_region_identifier}-services-in-oracle-services-network"
+  }
+
+  egress_security_rules {
+    protocol         = "1"
+    destination_type = "SERVICE_CIDR_BLOCK"
+    destination      = "all-${local.lowercase_region_identifier}-services-in-oracle-services-network"
+
+    icmp_options {
+      type = 3
+      code = 4
+    }
+  }
+
+  ingress_security_rules {
+    protocol = "6"
+    source   = local.subnets.k8s_worker_nodes.cidr_block
+
+    tcp_options {
+      max = "3306"
+      min = "3306"
+    }
+  }
+
+  ingress_security_rules {
+    protocol = "6"
+    source   = local.subnets.k8s_worker_nodes.cidr_block
+
+    tcp_options {
+      max = "33060"
+      min = "33060"
+    }
+  }
+
+  ingress_security_rules {
+    protocol = "6"
+    source   = local.subnets.k8s_pods.cidr_block
+
+    tcp_options {
+      max = "3306"
+      min = "3306"
+    }
+  }
+
+  ingress_security_rules {
+    protocol = "6"
+    source   = local.subnets.k8s_pods.cidr_block
+
+    tcp_options {
+      max = "33060"
+      min = "33060"
     }
   }
 }
