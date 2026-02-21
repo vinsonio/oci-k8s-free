@@ -15,11 +15,11 @@ resource "helm_release" "traefik" {
     ports:
       web:
         port: 8000
-        expose: {"nodePort": ${var.backend_port}}
+        nodePort: ${var.backend_port}
         exposedPort: 80
       websecure:
         port: 8443
-        expose: {"nodePort": ${var.backend_port_https}}
+        nodePort: ${var.backend_port_https}
         exposedPort: 443
     EOF
   ]

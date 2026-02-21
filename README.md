@@ -334,7 +334,7 @@ kubectl debug node/<node-name> -it --image=ubuntu
 | Block Storage              | 200 GB total             | ~120 GB (boot volumes)   | $0     |
 | VCN + Subnets              | Included                 | 1 VCN, 4 subnets         | $0     |
 | Public IP Addresses        | Included                 | 1 (load balancer subnet) | $0     |
-| Load Balancer              | 1 × 10 Mbps              | Optional (for ingress)   | $0     |
+| Load Balancer              | 1 ALB **OR** 1 NLB       | Optional (for ingress)   | $0     |
 | Outbound Data Transfer     | 10 TB/month              | ~1-10 GB/month           | $0     |
 | VCN Flow Logs              | 10 GB/month              | Enabled (monitoring)     | $0     |
 | Logging                    | 10 GB ingestion/month    | ~1-5 GB/month            | $0     |

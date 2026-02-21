@@ -51,19 +51,24 @@ output "k8s_loadbalancers_subnet_id" {
   value       = module.networking.k8s_loadbalancers_subnet_id
 }
 
-output "load_balancer_id" {
-  description = "OCID of the OCI load balancer (null if not created)"
-  value       = module.load_balancer.load_balancer_id
+output "network_load_balancer_id" {
+  description = "OCID of the OCI network load balancer (null if not created)"
+  value       = module.load_balancer.network_load_balancer_id
 }
 
-output "load_balancer_ip" {
-  description = "Public IP address of the load balancer (null if not created)"
-  value       = module.load_balancer.load_balancer_ip
+output "network_load_balancer_ip" {
+  description = "Public IP address of the network load balancer (null if not created)"
+  value       = module.load_balancer.network_load_balancer_ip
 }
 
-output "load_balancer_usage_instructions" {
-  description = "Instructions for routing traffic through the load balancer"
-  value       = module.load_balancer.usage_instructions
+output "application_load_balancer_id" {
+  description = "OCID of the OCI application load balancer (null if not created)"
+  value       = module.load_balancer.application_load_balancer_id
+}
+
+output "application_load_balancer_ip" {
+  description = "Public IP address of the application load balancer (null if not created)"
+  value       = module.load_balancer.application_load_balancer_ip
 }
 
 output "log_group_id" {

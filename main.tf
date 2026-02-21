@@ -67,16 +67,34 @@ module "observability" {
   vcn_id                     = module.networking.vcn_id
 }
 
-# Optional OCI flexible load balancer for public Kubernetes ingress
-# Always Free: 1 × 10 Mbps flexible LB per tenancy
-# Enable with create_load_balancer = true
+# Optional OCI load balancers for public Kubernetes ingress
+# Always Free: 1 flexible NLB and 1 flexible ALB per tenancy
+# Enable with create_network_load_balancer = true or create_application_load_balancer = true
 module "load_balancer" {
   source = "./modules/load-balancer"
 
-  compartment_ocid     = var.compartment_ocid
-  cluster_name         = var.cluster_name
-  create_load_balancer = var.create_load_balancer
-  lb_subnet_id         = module.networking.k8s_loadbalancers_subnet_id
-  backend_node_ips     = module.kubernetes.node_private_ips
-  backend_port         = var.lb_backend_port
+  compartment_ocid                 = var.compartment_ocid
+  cluster_name                     = var.cluster_name
+  create_network_load_balancer     = var.create_network_load_balancer
+  create_application_load_balancer = var.create_application_load_balancer
+  lb_subnet_id                     = module.networking.k8s_loadbalancers_subnet_id
+  backend_node_ips                 = module.kubernetes.node_private_ips
+  backend_port                     = var.lb_backend_port
+  backend_port_https               = var.lb_backend_port_https
+}
+
+# Optional Traefik Ingress Controller
+# Enable with install_ingress_controller = true
+module "ingress_controller" {
+  source = "./modules/ingress-controller"
+
+  cluster_id                 = module.kubernetes.cluster_id
+  install_ingress_controller = var.install_ingress_controller
+  backend_port               = var.lb_backend_port
+  backend_port_https         = var.lb_backend_port_https
+
+  depends_on = [
+    module.kubernetes,
+    module.networking
+  ]
 }

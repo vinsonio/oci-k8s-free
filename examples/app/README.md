@@ -9,8 +9,7 @@ A minimal nginx workload to verify your OCI OKE cluster is functioning end-to-en
 | Requirement | Details |
 |-------------|---------|
 | Running OKE cluster | Provisioned via `terraform apply` in the repo root |
-| `kubectl` access | Configured via bastion SSH tunnel or VPN (see root [README](../../README.md)) |
-| Load Balancer *(optional)* | Set `create_load_balancer = true` in `terraform.tfvars` and re-apply for external IP via `Ingress` |
+| Load Balancer | Set `create_network_load_balancer = true` and `install_ingress_controller = true` in `terraform.tfvars` and apply for external IP via `Ingress` |
 
 ---
 
@@ -37,14 +36,15 @@ kubectl rollout status deployment/example-app -n example-app
 
 ## Verify
 
-### Option A: External IP via Ingress (requires Load Balancer)
+### Option A: External IP via Load Balancer
 
 ```bash
-# Wait for the Ingress to receive an external IP (up to ~5 minutes)
-kubectl get ingress example-app -n example-app --watch
+# If using the Network Load Balancer, the external IP is provisioned strictly by Terraform.
+# Get the NLB IP from the terraform outputs:
+# cd ../../ && terraform output -raw network_load_balancer_ip
+EXTERNAL_IP="<your-nlb-ip>"
 
-# Once ADDRESS is populated, test HTTP access
-EXTERNAL_IP=$(kubectl get ingress example-app -n example-app -o jsonpath='{.status.loadBalancer.ingress[0].ip}')
+# Test HTTP access directly
 curl -H "Host: example.app" http://$EXTERNAL_IP
 # Expected: HTTP 200 with nginx welcome page
 ```

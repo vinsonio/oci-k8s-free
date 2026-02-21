@@ -83,14 +83,32 @@ variable "customer_network_cidr" {
   default     = ""
 }
 
-variable "create_load_balancer" {
-  description = "Create an OCI flexible load balancer (Always Free: 1 × 10 Mbps) for public Kubernetes ingress. The LB is placed in the k8s_loadbalancers subnet and listens on ports 80 and 443."
+variable "create_network_load_balancer" {
+  description = "Create an OCI flexible network load balancer (Layer 4, Always Free: 1 max per tenancy) for public Kubernetes ingress. The NLB is placed in the k8s_loadbalancers subnet and forwards ports 80 and 443."
+  type        = bool
+  default     = false
+}
+
+variable "create_application_load_balancer" {
+  description = "Create an OCI flexible application load balancer (Layer 7, Always Free: 1 × 10 Mbps max per tenancy) for public Kubernetes ingress. The ALB is placed in the k8s_loadbalancers subnet and listens on ports 80 and 443."
+  type        = bool
+  default     = false
+}
+
+variable "install_ingress_controller" {
+  description = "Install the Traefik Ingress Controller via Helm to automatically configure external load balancing. Requires an external load balancer to be enabled."
   type        = bool
   default     = false
 }
 
 variable "lb_backend_port" {
-  description = "NodePort on worker nodes that the load balancer forwards traffic to (range 30000-32767). Set to the NodePort of your ingress controller or service."
+  description = "NodePort on worker nodes that the load balancer forwards HTTP traffic to (range 30000-32767). Set to the HTTP NodePort of your ingress controller or service."
   type        = number
   default     = 30080
+}
+
+variable "lb_backend_port_https" {
+  description = "NodePort on worker nodes that the load balancer forwards HTTPS traffic to (range 30000-32767). Set to the HTTPS NodePort of your ingress controller or service."
+  type        = number
+  default     = 30443
 }

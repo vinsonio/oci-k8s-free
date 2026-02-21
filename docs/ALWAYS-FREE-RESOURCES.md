@@ -18,7 +18,7 @@ Oracle Cloud Infrastructure (OCI) offers a generous Always Free tier. This proje
 ## 🌐 Networking
 
 - **VCNs:** Up to 2 Virtual Cloud Networks.
-- **Load Balancers:** 1 Always Free Load Balancer with 10 Mbps bandwidth.
+- **Load Balancers:** 1 Always Free Application Load Balancer (Flexible, 10 Mbps) **AND** 1 Always Free Network Load Balancer.
 - **Data Transfer:** 10 TB outbound data transfer per month.
 - **Public IPs:** 2 public IPv4 addresses.
 

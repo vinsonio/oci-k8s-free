@@ -8,8 +8,14 @@ variable "cluster_name" {
   type        = string
 }
 
-variable "create_load_balancer" {
-  description = "Create an OCI flexible load balancer (Always Free: 1 × 10 Mbps) for public Kubernetes ingress. Set to true to enable."
+variable "create_network_load_balancer" {
+  description = "Create an OCI flexible network load balancer (L4, Always Free: 1 per tenancy) for public Kubernetes ingress. Set to true to enable."
+  type        = bool
+  default     = false
+}
+
+variable "create_application_load_balancer" {
+  description = "Create an OCI flexible application load balancer (L7, Always Free: 1 × 10 Mbps per tenancy) for public Kubernetes ingress. Set to true to enable."
   type        = bool
   default     = false
 }
@@ -32,12 +38,23 @@ variable "backend_node_ips" {
 }
 
 variable "backend_port" {
-  description = "NodePort on worker nodes that the load balancer forwards traffic to. Must be in range 30000-32767. Set to the NodePort exposed by your ingress controller (e.g., NGINX on 30080)."
+  description = "NodePort on worker nodes that the load balancer forwards HTTP traffic to. Must be in range 30000-32767. Set to the HTTP NodePort exposed by your ingress controller (e.g., NGINX on 30080)."
   type        = number
   default     = 30080
 
   validation {
     condition     = var.backend_port >= 30000 && var.backend_port <= 32767
     error_message = "backend_port must be a valid Kubernetes NodePort in the range 30000-32767."
+  }
+}
+
+variable "backend_port_https" {
+  description = "NodePort on worker nodes that the load balancer forwards HTTPS traffic to. Must be in range 30000-32767. Set to the HTTPS NodePort exposed by your ingress controller (e.g., NGINX on 30443)."
+  type        = number
+  default     = 30443
+
+  validation {
+    condition     = var.backend_port_https >= 30000 && var.backend_port_https <= 32767
+    error_message = "backend_port_https must be a valid Kubernetes NodePort in the range 30000-32767."
   }
 }
