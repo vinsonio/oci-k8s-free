@@ -39,3 +39,7 @@ node_pool_size = 4
 # OCI Load Balancer (public ingress for Kubernetes workloads)
 create_load_balancer = false  # Set to true to create an OCI flexible LB (Always Free: 1 × 10 Mbps)
 # lb_backend_port = 30080     # NodePort exposed by your ingress controller (default: 30080)
+
+# DB System (MySQL HeatWave)
+create_mysql_heatwave = false # Set to true to create OCI Always Free MySQL HeatWave DB System and Cluster
+# mysql_admin_username  = "admin" # Admin username for MySQL

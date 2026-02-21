@@ -116,3 +116,24 @@ output "connection_instructions" {
     "⚠️  API is private but no bastion created. Set create_bastion=true, use VPN, or temporarily enable public API. See README.md"
   )
 }
+
+output "mysql_db_system_id" {
+  description = "The OCID of the MySQL DB System"
+  value       = module.mysql.mysql_db_system_id
+}
+
+output "mysql_db_system_endpoints" {
+  description = "The endpoints of the MySQL DB System (IP address and port)"
+  value       = module.mysql.mysql_db_system_endpoints
+}
+
+output "mysql_heatwave_cluster_id" {
+  description = "The OCID of the MySQL HeatWave Cluster"
+  value       = module.mysql.mysql_heatwave_cluster_id
+}
+
+output "mysql_admin_password" {
+  description = "The randomly generated MySQL admin password"
+  value       = var.create_mysql_heatwave ? random_password.mysql_admin[0].result : null
+  sensitive   = true
+}
