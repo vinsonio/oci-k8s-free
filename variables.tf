@@ -43,7 +43,7 @@ variable "node_pool_size" {
 
   validation {
     condition     = var.node_pool_size > 0 && var.node_pool_size <= 4
-    error_message = "node_pool_size must be between 1 and 4 for free-tier A1 Compute instances."
+    error_message = "The node_pool_size must be between 1 and 4 for free-tier A1 Compute instances."
   }
 }
 
