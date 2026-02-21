@@ -3,9 +3,7 @@ config {
   force  = false
 }
 
-plugin "oci" {
-  enabled = true
-}
+
 
 # Terraform language rules
 rule "terraform_comment_syntax" {
