@@ -1,5 +1,8 @@
 name: Terraform Lint and Validate
 
+permissions:
+  contents: read
+
 on:
   push:
     branches: [main]
