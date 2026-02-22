@@ -32,3 +32,8 @@ output "mysql_subnet_id" {
   description = "MySQL subnet ID"
   value       = var.create_mysql_heatwave ? oci_core_subnet.mysql[0].id : null
 }
+
+output "autonomous_database_subnet_id" {
+  description = "Autonomous Database subnet ID"
+  value       = var.create_autonomous_database ? oci_core_subnet.autonomous_database[0].id : null
+}

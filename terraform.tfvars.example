@@ -36,10 +36,31 @@ create_vpn = false  # Set to true if you have a VPN endpoint
 # Scaling
 node_pool_size = 4
 
+# Multi-AD node placement (high availability within Always Free — zero extra cost)
+# OCI regions have 1–3 ADs. Default [0] places all nodes in the first AD.
+# Set to [0,1,2] to spread nodes across all three ADs for higher resilience.
+# ⚠️  Changing this after first apply triggers a rolling node replacement.
+# node_placement_ads = [0]
+
+# SSH access to worker nodes (optional)
+# Provide an OpenSSH public key to enable direct SSH to nodes via Bastion/VPN.
+# ⚠️  Setting or changing this after first apply triggers a node pool update.
+# ssh_public_key = "ssh-rsa AAAA..."
+
 # OCI Load Balancer (public ingress for Kubernetes workloads)
-create_load_balancer = false  # Set to true to create an OCI flexible LB (Always Free: 1 × 10 Mbps)
-# lb_backend_port = 30080     # NodePort exposed by your ingress controller (default: 30080)
+# Always Free: 1 flexible Network LB (Layer 4) AND 1 flexible Application LB (Layer 7, 10 Mbps) per tenancy
+create_network_load_balancer     = false # Set to true for Layer 4 NLB (Always Free)
+create_application_load_balancer = false # Set to true for Layer 7 ALB (Always Free, 10 Mbps)
+# lb_backend_port       = 30080     # HTTP NodePort on worker nodes (default: 30080)
+# lb_backend_port_https = 30443     # HTTPS NodePort on worker nodes (default: 30443)
+
+# Ingress Controller (Traefik, installed via Helm)
+install_ingress_controller = false # Set to true to install Traefik (requires a load balancer)
 
 # DB System (MySQL HeatWave)
 create_mysql_heatwave = false # Set to true to create OCI Always Free MySQL HeatWave DB System and Cluster
 # mysql_admin_username  = "admin" # Admin username for MySQL
+
+# Autonomous Database (ATP — Always Free: up to 2 instances, 20 GB each)
+create_autonomous_database = false # Set to true to create OCI Always Free ATP Autonomous Database
+# autonomous_database_db_name = "appdb"  # Database name (alphanumeric, 14 chars max)

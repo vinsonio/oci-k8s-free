@@ -7,6 +7,7 @@ Oracle Cloud Infrastructure (OCI) offers a generous Always Free tier. This proje
 - **Total Quota:** 4 OCPUs and 24 GB of RAM.
 - **Project Usage:** 4 nodes, each with 1 OCPU and 6 GB RAM.
 - **Constraint:** This is a monthly quota of 3,000 OCPU hours and 18,000 GB hours. Running 4 OCPUs continuously for a month uses approximately 2,880 - 2,976 OCPU hours, staying just within the limit.
+- **Multi-AD placement:** Worker nodes may be spread across multiple availability domains using `node_placement_ads` without affecting the Always-Free quota — the quota is a tenancy-wide OCPU/RAM pool, not per-AD. Intra-VCN cross-AD traffic is not charged.
 
 ## 📦 Storage
 
@@ -24,8 +25,8 @@ Oracle Cloud Infrastructure (OCI) offers a generous Always Free tier. This proje
 
 ## 🗄️ Databases
 
-- **MySQL HeatWave:** 1 Always Free MySQL HeatWave DB System (1 ECPU, 50GB storage) and 1 HeatWave Cluster (1 Node, 16GB Memory).
-- **Autonomous Database:** 2 Always Free Autonomous Databases (ADW or ATP, up to 20 GB storage each) - not used by default in this project but available.
+- **MySQL HeatWave:** 1 Always Free MySQL HeatWave DB System (1 ECPU, 50GB storage) and 1 HeatWave Cluster (1 Node, 16GB Memory). Enable with `create_mysql_heatwave = true`.
+- **Autonomous Database:** 2 Always Free Autonomous Databases (ADW or ATP, up to 20 GB storage each). Enable with `create_autonomous_database = true` to provision 1 Always-Free ATP instance. ⚠️ Provisioning a third ADB instance in the same tenancy will exceed the free-tier quota and incur charges.
 
 ## ☸️ Managed Kubernetes (OKE)
 

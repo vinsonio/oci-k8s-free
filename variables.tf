@@ -47,6 +47,23 @@ variable "node_pool_size" {
   }
 }
 
+variable "node_placement_ads" {
+  description = "Zero-based indices of availability domains used for worker node placement. Default [0] places all nodes in the first AD. Set to e.g. [0,1,2] to spread nodes across ADs for higher resilience. Note: OCI regions have 1–3 ADs; do not specify an index that exceeds the region's AD count."
+  type        = list(number)
+  default     = [0]
+
+  validation {
+    condition     = length(var.node_placement_ads) > 0 && alltrue([for i in var.node_placement_ads : i >= 0])
+    error_message = "node_placement_ads must be a non-empty list of non-negative AD indices."
+  }
+}
+
+variable "ssh_public_key" {
+  description = "Optional SSH public key to inject into worker nodes. When set, enables direct SSH access to nodes (via OCI Bastion Service or VPN). Leave empty to disable SSH access."
+  type        = string
+  default     = ""
+}
+
 variable "allowed_k8s_api_cidrs" {
   description = "CIDR blocks allowed to access Kubernetes API. Only used when kubernetes_api_public_enabled is true. Leave empty to disable public access."
   type        = list(string)
@@ -123,4 +140,16 @@ variable "mysql_admin_username" {
   description = "MySQL database admin username"
   type        = string
   default     = "admin"
+}
+
+variable "create_autonomous_database" {
+  description = "Whether to provision an OCI Always Free ATP Autonomous Database. Always-Free quota: up to 2 ADB instances per tenancy, 20 GB storage each."
+  type        = bool
+  default     = false
+}
+
+variable "autonomous_database_db_name" {
+  description = "Unique database name for the Autonomous Database (alphanumeric, 14 chars max)."
+  type        = string
+  default     = "appdb"
 }

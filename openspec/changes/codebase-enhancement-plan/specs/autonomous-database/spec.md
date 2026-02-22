@@ -12,7 +12,7 @@ The system SHALL provide a `modules/autonomous-database/` Terraform module that 
 - **THEN** no ADB resources SHALL be created and all ADB outputs SHALL return `null`
 
 ### Requirement: Always-Free ADB constraints enforced
-The ADB resource SHALL set `compute_model = "ECPU"`, `compute_count = 2`, and `data_storage_size_in_tbs = 0.02` (20 GB) to stay within Always-Free limits.
+The ADB resource SHALL set `compute_model = "ECPU"`, `compute_count = 2`, and `data_storage_size_in_gb = 20` (20 GB) to stay within Always-Free limits.
 
 #### Scenario: Free tier attributes are set
 - **WHEN** `create_autonomous_database = true`

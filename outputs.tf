@@ -137,3 +137,19 @@ output "mysql_admin_password" {
   value       = var.create_mysql_heatwave ? random_password.mysql_admin[0].result : null
   sensitive   = true
 }
+
+output "autonomous_database_id" {
+  description = "The OCID of the Autonomous Database (null if not created)"
+  value       = module.autonomous_database.autonomous_database_id
+}
+
+output "autonomous_database_connection_strings" {
+  description = "Connection strings for the Autonomous Database (null if not created)"
+  value       = module.autonomous_database.autonomous_database_connection_strings
+}
+
+output "autonomous_database_admin_password" {
+  description = "The randomly generated Autonomous Database admin password"
+  value       = var.create_autonomous_database ? random_password.adb_admin[0].result : null
+  sensitive   = true
+}

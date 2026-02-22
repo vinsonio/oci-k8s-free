@@ -11,6 +11,7 @@ module "networking" {
   kubernetes_api_public_enabled = var.kubernetes_api_public_enabled
   allowed_k8s_api_cidrs         = var.allowed_k8s_api_cidrs
   create_mysql_heatwave         = var.create_mysql_heatwave
+  create_autonomous_database    = var.create_autonomous_database
 }
 
 # Kubernetes cluster and node pool
@@ -23,6 +24,8 @@ module "kubernetes" {
   image_id                      = var.image_id
   kubernetes_api_public_enabled = var.kubernetes_api_public_enabled
   node_pool_size                = var.node_pool_size
+  node_placement_ads            = var.node_placement_ads
+  ssh_public_key                = var.ssh_public_key
 
   vcn_id                      = module.networking.vcn_id
   k8s_api_subnet_id           = module.networking.k8s_api_subnet_id
@@ -118,6 +121,30 @@ module "mysql" {
   admin_username        = var.mysql_admin_username
   admin_password        = var.create_mysql_heatwave ? random_password.mysql_admin[0].result : ""
   create_mysql_heatwave = var.create_mysql_heatwave
+
+  depends_on = [module.networking]
+}
+
+resource "random_password" "adb_admin" {
+  count = var.create_autonomous_database ? 1 : 0
+
+  length           = 16
+  special          = true
+  override_special = "!#$%&*()-_=+[]{}<>:?"
+}
+
+# Optional OCI Always Free ATP Autonomous Database
+# Enable with create_autonomous_database = true
+# Always-Free quota: up to 2 ADB instances per tenancy, 20 GB storage each
+module "autonomous_database" {
+  source = "./modules/autonomous-database"
+
+  compartment_ocid           = var.compartment_ocid
+  adb_subnet_id              = module.networking.autonomous_database_subnet_id != null ? module.networking.autonomous_database_subnet_id : ""
+  admin_password             = var.create_autonomous_database ? random_password.adb_admin[0].result : ""
+  db_name                    = var.autonomous_database_db_name
+  display_name               = "AlwaysFreeATP-${var.cluster_name}"
+  create_autonomous_database = var.create_autonomous_database
 
   depends_on = [module.networking]
 }

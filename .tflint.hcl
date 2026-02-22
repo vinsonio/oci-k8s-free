@@ -3,6 +3,12 @@ config {
   force  = false
 }
 
+plugin "oci" {
+  enabled = true
+  source  = "terraform-linters/tflint-ruleset-oci"
+  version = "~> 0.3"
+}
+
 # Terraform language rules
 rule "terraform_comment_syntax" {
   enabled = true
