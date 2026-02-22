@@ -204,6 +204,8 @@ node_placement_ads = [0, 1, 2]  # spread across all 3 ADs (3-AD regions only)
 node_placement_ads = [0, 1]     # spread across 2 ADs
 ```
 
+> **⚠️ Single-AD Regions:** If your region only has 1 Availability Domain (e.g. `ap-singapore-1`), you **must** leave this at `[0]`. Setting it to `[0, 1, 2]` will cause an "Invalid index" error during `terraform plan` or `terraform apply`.
+>
 > **Cost note:** Multi-AD placement has zero additional cost — the A1 Always-Free quota is a tenancy-wide OCPU/RAM pool regardless of AD distribution.
 >
 > **⚠️ State note:** Changing `node_placement_ads` after first apply triggers a rolling node pool replacement. Set your desired ADs before the initial `terraform apply`.
@@ -437,6 +439,7 @@ allowed_k8s_api_cidrs = ["203.0.113.0/24"]  # Only used if public_enabled=true
 node_pool_size = 4
 
 # Multi-AD placement (zero extra cost; set before first apply to avoid node replacement)
+# ⚠️ If your region has only 1 AD (e.g. ap-singapore-1), use [0] to avoid Invalid index errors.
 # node_placement_ads = [0, 1, 2]  # spread across ADs (3-AD regions)
 
 # SSH access to worker nodes (set before first apply)
