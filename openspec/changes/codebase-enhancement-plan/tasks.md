@@ -37,11 +37,11 @@
 
 - [x] 4.1 Change `modules/mysql/versions.tf` OCI provider version from `>= 5.39.0` to `~> 5.39`.
 - [x] 4.2 Remove the `create_load_balancer = false` line from `terraform.tfvars.example` and replace it with commented examples for `create_network_load_balancer` and `create_application_load_balancer`.
-- [x] 4.3 Add the `tflint-ruleset-oci` plugin block (`source = "terraform-linters/tflint-ruleset-oci"`, `version = "~> 0.3"`) to `.tflint.hcl`.
-- [x] 4.4 Add a `tflint --init` step to `.github/workflows/terraform.yml` immediately before the existing `tflint -f compact` step.
+- [x] 4.3 ~~Add the `tflint-ruleset-oci` plugin block to `.tflint.hcl`~~ — Removed: `tflint-ruleset-oci` does not exist as a published plugin; plugin block and `tflint --init` CI step reverted.
+- [x] 4.4 ~~Add a `tflint --init` step to `.github/workflows/terraform.yml`~~ — Reverted (no plugins to install).
 
 ## 5. Verification
 
 - [x] 5.1 Run `terraform fmt -check -recursive` and fix any formatting issues.
 - [x] 5.2 Run `terraform init -backend=false` and `terraform validate` to confirm all new resources and modules are valid.
-- [x] 5.3 Run `tflint --init && tflint -f compact` to verify the OCI plugin loads and no new lint violations are introduced.
+- [x] 5.3 Run `tflint -f compact` — passes with 0 violations. (`tflint --init` removed; no external plugins.)
