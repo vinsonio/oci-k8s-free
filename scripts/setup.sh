@@ -110,6 +110,11 @@ customer_network_cidr         = "${CUSTOMER_CIDR}"
 
 # Node Pool
 node_pool_size                = 4
+
+# Multi-AD node placement
+# ⚠️ CRITICAL: If your region only has 1 AD (e.g. ap-singapore-1), leave this as [0].
+# Using [0,1,2] in a 1-AD region will cause "Invalid index" errors.
+# node_placement_ads            = [0]
 EOF
 
 echo -e "${GREEN}✓ Created terraform.tfvars${NC}"

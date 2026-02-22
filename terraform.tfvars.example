@@ -39,6 +39,8 @@ node_pool_size = 4
 # Multi-AD node placement (high availability within Always Free — zero extra cost)
 # OCI regions have 1–3 ADs. Default [0] places all nodes in the first AD.
 # Set to [0,1,2] to spread nodes across all three ADs for higher resilience.
+# ⚠️  CRITICAL: If your region only has 1 Availability Domain (e.g. ap-singapore-1),
+# you MUST set this to [0] to avoid "Invalid index" errors during terraform plan/apply.
 # ⚠️  Changing this after first apply triggers a rolling node replacement.
 # node_placement_ads = [0]
 
