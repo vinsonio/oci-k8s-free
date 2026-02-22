@@ -61,7 +61,7 @@ variable "node_placement_ads" {
 
   validation {
     condition     = length(var.node_placement_ads) > 0 && alltrue([for i in var.node_placement_ads : i >= 0])
-    error_message = "node_placement_ads must be a non-empty list of non-negative AD indices."
+    error_message = "The node_placement_ads must be a non-empty list of non-negative AD indices."
   }
 }
 
