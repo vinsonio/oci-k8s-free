@@ -10,8 +10,9 @@ Deploy a secure, production-hardened Kubernetes cluster on Oracle Cloud Infrastr
 - **Secure by Default** — Private Kubernetes API endpoint, encrypted traffic, least-privilege security lists
 - **Network Segmentation** — Dedicated subnets for API, worker nodes, pods, and load balancers
 - **Observability** — VCN Flow Logs for security auditing (10 GB/month Always-Free quota)
-- **High Availability** — Easy multi-AZ and autoscaling support (within free tier limits)
-- **Database Included** — Provision the Always-Free Oracle MySQL HeatWave DB System and Cluster
+- **High Availability** — Multi-AD node placement via `node_placement_ads` at zero extra cost; easy scaling within free tier limits
+- **Databases Included** — Optional Always-Free MySQL HeatWave and ATP Autonomous Database modules
+- **SSH Access** — Optional SSH key injection into worker nodes for direct access via Bastion/VPN
 - **Parameterized** — Typed variables, validation, and clear configuration
 
 📖 **See [Complete Always Free Resources Guide](docs/ALWAYS-FREE-RESOURCES.md)** for detailed quota information
@@ -193,6 +194,20 @@ All security lists use **least-privilege, explicit port ranges**:
 ✅ No broad `protocol = all` rules
 ✅ Internet-facing subnets have NAT/Service Gateway routing
 
+### Multi-AD Node Placement
+
+By default all worker nodes are placed in the first availability domain (`node_placement_ads = [0]`). To spread nodes across multiple ADs for higher resilience set:
+
+```hcl
+# terraform.tfvars
+node_placement_ads = [0, 1, 2]  # spread across all 3 ADs (3-AD regions only)
+node_placement_ads = [0, 1]     # spread across 2 ADs
+```
+
+> **Cost note:** Multi-AD placement has zero additional cost — the A1 Always-Free quota is a tenancy-wide OCPU/RAM pool regardless of AD distribution.
+>
+> **⚠️ State note:** Changing `node_placement_ads` after first apply triggers a rolling node pool replacement. Set your desired ADs before the initial `terraform apply`.
+
 ---
 
 ## 📊 Monitoring & Observability
@@ -251,13 +266,24 @@ If the API is private, ensure your connection method is configured (VPN, bastion
 
 ---
 
-## �️ Accessing Worker Nodes (SSH)
+## 🖥️ Accessing Worker Nodes (SSH)
 
 ### Private Node Access Warning ℹ️
 
 You'll see this warning in OCI Console: **"Accessing your private nodes: set up a bastion host"**
 
 This is **expected and correct** - your worker nodes are in private subnets (10.0.1.0/24) and cannot be accessed directly from the internet. This is the secure default configuration.
+
+### SSH Key Injection
+
+To enable SSH access, set an SSH public key before your first `terraform apply`:
+
+```hcl
+# terraform.tfvars
+ssh_public_key = "ssh-rsa AAAA..."   # your ~/.ssh/id_rsa.pub or similar
+```
+
+> **⚠️ State note:** Setting or changing `ssh_public_key` on an existing cluster triggers a node pool update. Set it before the initial `terraform apply` to avoid disruption.
 
 ### When Do You Need SSH Access?
 
@@ -410,9 +436,18 @@ allowed_k8s_api_cidrs = ["203.0.113.0/24"]  # Only used if public_enabled=true
 # Scaling (1-4 nodes for free tier A1 Compute)
 node_pool_size = 4
 
+# Multi-AD placement (zero extra cost; set before first apply to avoid node replacement)
+# node_placement_ads = [0, 1, 2]  # spread across ADs (3-AD regions)
+
+# SSH access to worker nodes (set before first apply)
+# ssh_public_key = "ssh-rsa AAAA..."
+
 # Database
-create_mysql_heatwave = false # Set to true to create Always Free MySQL DB System
-# mysql_admin_username  = "admin" # Admin username
+create_mysql_heatwave = false        # Set to true to create Always Free MySQL DB System
+# mysql_admin_username  = "admin"    # Admin username
+
+create_autonomous_database = false   # Set to true to create Always Free ATP Autonomous Database
+# autonomous_database_db_name = "appdb"  # DB name (alphanumeric, 14 chars max)
 ```
 
 ### Variables with Validation

@@ -41,9 +41,12 @@ resource "oci_containerengine_node_pool" "pool1" {
 
   node_config_details {
 
-    placement_configs {
-      availability_domain = data.oci_identity_availability_domains.ads.availability_domains[0].name
-      subnet_id           = var.k8s_worker_nodes_subnet_id
+    dynamic "placement_configs" {
+      for_each = var.node_placement_ads
+      content {
+        availability_domain = data.oci_identity_availability_domains.ads.availability_domains[placement_configs.value].name
+        subnet_id           = var.k8s_worker_nodes_subnet_id
+      }
     }
 
     size                                = var.node_pool_size
@@ -56,6 +59,8 @@ resource "oci_containerengine_node_pool" "pool1" {
     }
 
   }
+
+  ssh_public_key = var.ssh_public_key != "" ? var.ssh_public_key : null
 
   node_eviction_node_pool_settings {
     eviction_grace_duration              = "PT1H"

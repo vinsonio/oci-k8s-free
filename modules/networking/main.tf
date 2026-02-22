@@ -14,6 +14,9 @@ locals {
     },
     mysql = {
       cidr_block = "10.0.3.0/24"
+    },
+    autonomous_database = {
+      cidr_block = "10.0.4.0/24"
     }
   }
 
@@ -726,6 +729,79 @@ resource "oci_core_security_list" "mysql" {
     tcp_options {
       max = "33060"
       min = "33060"
+    }
+  }
+}
+
+resource "oci_core_subnet" "autonomous_database" {
+  count = var.create_autonomous_database ? 1 : 0
+
+  cidr_block                = local.subnets.autonomous_database.cidr_block
+  display_name              = "autonomous-database"
+  dns_label                 = "adb"
+  security_list_ids         = [oci_core_security_list.autonomous_database[0].id]
+  compartment_id            = var.compartment_ocid
+  vcn_id                    = oci_core_virtual_network.k8s_vcn.id
+  route_table_id            = oci_core_route_table.autonomous_database[0].id
+  dhcp_options_id           = oci_core_virtual_network.k8s_vcn.default_dhcp_options_id
+  prohibit_internet_ingress = true
+}
+
+resource "oci_core_route_table" "autonomous_database" {
+  count = var.create_autonomous_database ? 1 : 0
+
+  compartment_id = var.compartment_ocid
+  vcn_id         = oci_core_virtual_network.k8s_vcn.id
+  display_name   = "routetable-autonomous-database"
+
+  route_rules {
+    destination_type  = "SERVICE_CIDR_BLOCK"
+    destination       = "all-${local.lowercase_region_identifier}-services-in-oracle-services-network"
+    network_entity_id = oci_core_service_gateway.this.id
+  }
+}
+
+resource "oci_core_security_list" "autonomous_database" {
+  count = var.create_autonomous_database ? 1 : 0
+
+  compartment_id = var.compartment_ocid
+  vcn_id         = oci_core_virtual_network.k8s_vcn.id
+  display_name   = "seclist-autonomous-database"
+
+  egress_security_rules {
+    protocol         = "6"
+    destination_type = "SERVICE_CIDR_BLOCK"
+    destination      = "all-${local.lowercase_region_identifier}-services-in-oracle-services-network"
+  }
+
+  egress_security_rules {
+    protocol         = "1"
+    destination_type = "SERVICE_CIDR_BLOCK"
+    destination      = "all-${local.lowercase_region_identifier}-services-in-oracle-services-network"
+
+    icmp_options {
+      type = 3
+      code = 4
+    }
+  }
+
+  ingress_security_rules {
+    protocol = "6"
+    source   = local.subnets.k8s_worker_nodes.cidr_block
+
+    tcp_options {
+      max = "1521"
+      min = "1521"
+    }
+  }
+
+  ingress_security_rules {
+    protocol = "6"
+    source   = local.subnets.k8s_pods.cidr_block
+
+    tcp_options {
+      max = "1521"
+      min = "1521"
     }
   }
 }

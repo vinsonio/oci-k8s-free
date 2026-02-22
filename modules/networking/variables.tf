@@ -25,3 +25,9 @@ variable "create_mysql_heatwave" {
   type        = bool
   default     = false
 }
+
+variable "create_autonomous_database" {
+  description = "Whether to create a dedicated subnet and security rules for the Autonomous Database."
+  type        = bool
+  default     = false
+}
