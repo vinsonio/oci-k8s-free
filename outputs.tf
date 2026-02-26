@@ -153,3 +153,18 @@ output "autonomous_database_admin_password" {
   value       = var.create_autonomous_database ? random_password.adb_admin[0].result : null
   sensitive   = true
 }
+
+output "vault_ids" {
+  description = "Map of vault logical names to their OCIDs"
+  value       = module.vault.vault_ids
+}
+
+output "master_encryption_key_ids" {
+  description = "Map of vault logical names to their Master Encryption Key OCIDs"
+  value       = module.vault.master_encryption_key_ids
+}
+
+output "secret_ids" {
+  description = "Map of secret logical names to their OCIDs"
+  value       = module.vault_secret.secret_ids
+}

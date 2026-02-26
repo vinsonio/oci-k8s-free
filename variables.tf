@@ -153,3 +153,37 @@ variable "autonomous_database_db_name" {
   type        = string
   default     = "appdb"
 }
+
+variable "create_vault" {
+  description = "Whether to provision OCI Vault and Master Encryption Key(s)"
+  type        = bool
+  default     = false
+}
+
+variable "vaults" {
+  description = "Map of vaults to create. Key is a logical name, value is the configuration. If empty but create_vault is true, a default vault is created."
+  type = map(object({
+    name = string
+  }))
+  default = {
+    default = {
+      name = "default-vault"
+    }
+  }
+}
+
+variable "create_vault_secrets" {
+  description = "Whether to provision OCI Vault Secrets"
+  type        = bool
+  default     = false
+}
+
+variable "vault_secrets" {
+  description = "Map of vaults to their secrets. Key is vault logical name. Value is a map of secrets (key is secret logical name)."
+  type = map(map(object({
+    name           = string
+    secret_content = string
+  })))
+  default = {}
+}
+

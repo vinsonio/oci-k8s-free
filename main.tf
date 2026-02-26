@@ -148,3 +148,26 @@ module "autonomous_database" {
 
   depends_on = [module.networking]
 }
+
+# Optional OCI Vault and Master Encryption Key
+# Enable with create_vault = true
+module "vault" {
+  source = "./modules/vault"
+
+  compartment_ocid = var.compartment_ocid
+  create_vault     = var.create_vault
+  vaults           = var.vaults
+}
+
+# Optional OCI Vault Secrets
+# Enable with create_vault_secrets = true
+module "vault_secret" {
+  source = "./modules/vault-secret"
+
+  compartment_ocid     = var.compartment_ocid
+  create_vault_secrets = var.create_vault_secrets
+  vault_secrets        = var.vault_secrets
+
+  vault_ids = module.vault.vault_ids
+  key_ids   = module.vault.master_encryption_key_ids
+}
