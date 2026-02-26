@@ -66,3 +66,23 @@ create_mysql_heatwave = false # Set to true to create OCI Always Free MySQL Heat
 # Autonomous Database (ATP — Always Free: up to 2 instances, 20 GB each)
 create_autonomous_database = false # Set to true to create OCI Always Free ATP Autonomous Database
 # autonomous_database_db_name = "appdb"  # Database name (alphanumeric, 14 chars max)
+
+# OCI Vault (Always Free: up to 20 key versions and 150 secret versions per tenancy)
+create_vault = false # Set to true to create a default OCI Vault and Master Encryption Key
+# To provision multiple vaults, provide a map:
+# vaults = {
+#   app1 = { name = "app1-vault" }
+#   app2 = { name = "app2-vault" }
+# }
+
+# OCI Vault Secrets (Requires a provisioned Vault and Master Encryption Key)
+create_vault_secrets = false # Set to true to provision secrets
+# To provision multiple secrets, group them under the vault's logical name:
+# vault_secrets = {
+#   app1 = { # 'app1' refers to the vault logical name
+#     db_pass = {
+#       name           = "database-password"
+#       secret_content = "dummy-password-change-me"
+#     }
+#   }
+# }
