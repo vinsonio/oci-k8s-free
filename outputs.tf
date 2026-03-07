@@ -168,3 +168,14 @@ output "secret_ids" {
   description = "Map of secret logical names to their OCIDs"
   value       = module.vault_secret.secret_ids
 }
+
+output "object_storage_bucket_names" {
+  description = "Map of Object Storage bucket logical names to their OCI bucket names (empty map if create_object_storage is false)"
+  value       = module.object_storage.bucket_names
+}
+
+output "object_storage_namespace" {
+  description = "The OCI Object Storage namespace for this tenancy"
+  value       = module.object_storage.namespace
+}
+
