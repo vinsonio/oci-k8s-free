@@ -139,7 +139,7 @@ variable "create_autonomous_database" {
 variable "autonomous_database_db_name" {
   description = "Autonomous Database name"
   type        = string
-  default     = "devonbeauty"
+  default     = "appdb"
 }
 
 variable "create_vault" {
