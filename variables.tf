@@ -13,26 +13,6 @@ variable "region_identifier" {
   type        = string
 }
 
-variable "tenancy_ocid" {
-  description = "OCID of the tenancy"
-  type        = string
-}
-
-variable "user_ocid" {
-  description = "OCID of the user"
-  type        = string
-}
-
-variable "fingerprint" {
-  description = "API key fingerprint"
-  type        = string
-}
-
-variable "private_key_path" {
-  description = "Path to the private key"
-  type        = string
-}
-
 variable "kubernetes_version" {
   description = "Kubernetes version"
   type        = string
