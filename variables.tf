@@ -1,155 +1,159 @@
-
 variable "compartment_ocid" {
-  description = "The OCID of the compartment to create resources in"
+  description = "OCID of the compartment"
   type        = string
 }
 
 variable "region" {
-  description = "The OCI region where resources will be created (e.g., us-phoenix-1)"
+  description = "OCI region"
   type        = string
 }
 
 variable "region_identifier" {
-  description = "The regional service identifier (e.g., PHX, ASH, FRA). Used to identify the Oracle Services Network for the Service Gateway."
+  description = "Short OCI region identifier used for service gateways (e.g., PHX, ASH)"
   type        = string
 }
 
 variable "kubernetes_version" {
-  description = "The Kubernetes version for the cluster (e.g., v1.32.4)"
+  description = "Kubernetes version"
   type        = string
+  default     = "v1.30.1"
 }
 
 variable "cluster_name" {
-  description = "The Kubernetes cluster name"
+  description = "Name of the Kubernetes cluster"
   type        = string
-  default     = "cluster1"
 }
 
 variable "image_id" {
-  description = "The OCID of the OS image to use for worker nodes"
+  description = "OCID of the OS image for worker nodes"
   type        = string
 }
 
 variable "kubernetes_api_public_enabled" {
-  description = "Whether to enable public access to Kubernetes API endpoint. Set to false for enhanced security and use VPN/bastion for admin access."
+  description = "Whether the Kubernetes API endpoint should be publicly accessible"
   type        = bool
   default     = false
 }
 
-variable "node_pool_size" {
-  description = "Number of worker nodes in the node pool. OKE free tier supports up to 4 A1 Compute instances."
-  type        = number
-  default     = 4
-
-  validation {
-    condition     = var.node_pool_size > 0 && var.node_pool_size <= 4
-    error_message = "The node_pool_size must be between 1 and 4 for free-tier A1 Compute instances."
-  }
-}
-
-variable "node_placement_ads" {
-  description = "Zero-based indices of availability domains used for worker node placement. Default [0] places all nodes in the first AD. Set to e.g. [0,1,2] to spread nodes across ADs for higher resilience. Note: OCI regions have 1–3 ADs; do not specify an index that exceeds the region's AD count."
-  type        = list(number)
-  default     = [0]
-
-  validation {
-    condition     = length(var.node_placement_ads) > 0 && alltrue([for i in var.node_placement_ads : i >= 0])
-    error_message = "The node_placement_ads must be a non-empty list of non-negative AD indices."
-  }
-}
-
-variable "ssh_public_key" {
-  description = "Optional SSH public key to inject into worker nodes. When set, enables direct SSH access to nodes (via OCI Bastion Service or VPN). Leave empty to disable SSH access."
-  type        = string
-  default     = ""
-}
-
 variable "allowed_k8s_api_cidrs" {
-  description = "CIDR blocks allowed to access Kubernetes API. Only used when kubernetes_api_public_enabled is true. Leave empty to disable public access."
+  description = "List of CIDR blocks allowed to access the Kubernetes API (if public). When enabling public access, use tightly scoped admin/VPN/bastion CIDRs."
   type        = list(string)
   default     = []
 }
 
+variable "node_pool_size" {
+  description = "Number of worker nodes in the node pool"
+  type        = number
+  default     = 1
+
+  validation {
+    condition     = var.node_pool_size >= 1 && var.node_pool_size <= 4
+    error_message = "node_pool_size must be between 1 and 4 to remain within OCI Always Free A1 limits."
+  }
+}
+
+variable "node_placement_ads" {
+  description = "List of availability domains to place worker nodes"
+  type        = list(number)
+  default     = [0]
+
+  validation {
+    condition     = length(var.node_placement_ads) > 0 && alltrue([for ad in var.node_placement_ads : ad >= 0])
+    error_message = "node_placement_ads must be a non-empty list of non-negative, zero-based availability domain indices."
+  }
+}
+
+variable "ssh_public_key" {
+  description = "SSH public key for worker nodes"
+  type        = string
+  default     = ""
+}
+
 variable "create_bastion" {
-  description = "Create OCI Bastion Service for accessing private Kubernetes API. Recommended when kubernetes_api_public_enabled is false."
+  description = "Whether to create OCI Bastion Service"
   type        = bool
   default     = false
 }
 
 variable "bastion_client_cidr_allow_list" {
-  description = "CIDR blocks allowed to create bastion sessions. Restrict to your IP for better security."
+  description = "List of CIDR blocks allowed to access the bastion"
   type        = list(string)
-  default     = ["0.0.0.0/0"] # Allow from anywhere - restrict this in production!
+  default     = []
+
+  validation {
+    condition     = (!var.create_bastion) || length(var.bastion_client_cidr_allow_list) > 0
+    error_message = "When create_bastion is true, bastion_client_cidr_allow_list must contain at least one CIDR block."
+  }
 }
 
 variable "create_vpn" {
-  description = "Create Site-to-Site VPN for private Kubernetes API access. Requires on-premises VPN equipment."
+  description = "Whether to create Site-to-Site VPN"
   type        = bool
   default     = false
 }
 
 variable "cpe_ip_address" {
-  description = "Public IP address of your Customer Premises Equipment (your VPN endpoint). Required if create_vpn is true."
+  description = "IP address of the customer premises equipment"
   type        = string
   default     = ""
 }
 
 variable "customer_network_cidr" {
-  description = "CIDR block of your on-premises network (e.g., 192.168.0.0/16). Required if create_vpn is true."
+  description = "CIDR block of the customer network"
   type        = string
   default     = ""
 }
 
 variable "create_network_load_balancer" {
-  description = "Create an OCI flexible network load balancer (Layer 4, Always Free: 1 max per tenancy) for public Kubernetes ingress. The NLB is placed in the k8s_loadbalancers subnet and forwards ports 80 and 443."
+  description = "Whether to create OCI Network Load Balancer"
   type        = bool
   default     = false
 }
 
 variable "create_application_load_balancer" {
-  description = "Create an OCI flexible application load balancer (Layer 7, Always Free: 1 × 10 Mbps max per tenancy) for public Kubernetes ingress. The ALB is placed in the k8s_loadbalancers subnet and listens on ports 80 and 443."
-  type        = bool
-  default     = false
-}
-
-variable "install_ingress_controller" {
-  description = "Install the Traefik Ingress Controller via Helm to automatically configure external load balancing. Requires an external load balancer to be enabled."
+  description = "Whether to create OCI Application Load Balancer"
   type        = bool
   default     = false
 }
 
 variable "lb_backend_port" {
-  description = "NodePort on worker nodes that the load balancer forwards HTTP traffic to (range 30000-32767). Set to the HTTP NodePort of your ingress controller or service."
+  description = "NodePort on worker nodes that the load balancer forwards HTTP traffic to. Must be in range 30000-32767."
   type        = number
   default     = 30080
 }
 
 variable "lb_backend_port_https" {
-  description = "NodePort on worker nodes that the load balancer forwards HTTPS traffic to (range 30000-32767). Set to the HTTPS NodePort of your ingress controller or service."
+  description = "NodePort on worker nodes that the load balancer forwards HTTPS traffic to. Must be in range 30000-32767."
   type        = number
   default     = 30443
 }
 
+variable "install_ingress_controller" {
+  description = "Whether to install Traefik Ingress Controller"
+  type        = bool
+  default     = false
+}
+
 variable "create_mysql_heatwave" {
-  description = "Whether to provision an OCI Always Free MySQL HeatWave DB System and Cluster."
+  description = "Whether to provision OCI MySQL HeatWave Always Free DB System"
   type        = bool
   default     = false
 }
 
 variable "mysql_admin_username" {
-  description = "MySQL database admin username"
+  description = "MySQL admin username"
   type        = string
   default     = "admin"
 }
 
 variable "create_autonomous_database" {
-  description = "Whether to provision an OCI Always Free ATP Autonomous Database. Always-Free quota: up to 2 ADB instances per tenancy, 20 GB storage each."
+  description = "Whether to provision OCI Always Free ATP Autonomous Database"
   type        = bool
   default     = false
 }
 
 variable "autonomous_database_db_name" {
-  description = "Unique database name for the Autonomous Database (alphanumeric, 14 chars max)."
+  description = "Autonomous Database name"
   type        = string
   default     = "appdb"
 }
@@ -187,3 +191,18 @@ variable "vault_secrets" {
   default = {}
 }
 
+variable "create_object_storage" {
+  description = "Whether to provision OCI Object Storage buckets"
+  type        = bool
+  default     = false
+}
+
+variable "object_storage_buckets" {
+  description = "Map of buckets to create. Key is logical name, value is bucket config."
+  type = map(object({
+    name         = string
+    storage_tier = optional(string, "Standard")
+    access_type  = optional(string, "NoPublicAccess")
+  }))
+  default = {}
+}

@@ -86,3 +86,22 @@ create_vault_secrets = false # Set to true to provision secrets
 #     }
 #   }
 # }
+
+# OCI Object Storage (Always Free: 20 GB combined across all tiers, 50,000 API requests/month)
+# ⚠️  The 20 GB cap is SHARED across Standard, Infrequent Access, and Archive tiers in total.
+create_object_storage = false # Set to true to create OCI Object Storage buckets
+# Provide a map of buckets; each bucket has its own storage tier.
+# storage_tier options: "Standard" (hot), "InfrequentAccess" (warm), "Archive" (cold)
+# access_type options:  "NoPublicAccess" (default), "ObjectRead", "ObjectReadWithoutList"
+# object_storage_buckets = {
+#   app_data = {
+#     name         = "my-app-data"
+#     storage_tier = "Standard"       # Hot data — accessed frequently
+#     access_type  = "NoPublicAccess"
+#   }
+#   backups = {
+#     name         = "my-app-backups"
+#     storage_tier = "Archive"        # Cold data — retrieved infrequently
+#     access_type  = "NoPublicAccess" # Restore required before download (OCI Archive behaviour)
+#   }
+# }

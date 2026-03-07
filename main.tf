@@ -171,3 +171,14 @@ module "vault_secret" {
   vault_ids = module.vault.vault_ids
   key_ids   = module.vault.master_encryption_key_ids
 }
+
+# Optional OCI Object Storage buckets
+# Always Free: 20 GB combined across Standard, Infrequent Access, and Archive tiers
+# Enable with create_object_storage = true
+module "object_storage" {
+  source = "./modules/object-storage"
+
+  compartment_ocid      = var.compartment_ocid
+  create_object_storage = var.create_object_storage
+  buckets               = var.object_storage_buckets
+}
