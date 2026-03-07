@@ -16,6 +16,6 @@ resource "oci_objectstorage_bucket" "this" {
   access_type    = each.value.access_type
 
   freeform_tags = {
-    "purpose" = "always-free-object-storage"
+    "Purpose" = "always-free-object-storage"
   }
 }
