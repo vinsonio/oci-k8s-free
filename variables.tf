@@ -188,11 +188,5 @@ variable "object_storage_buckets" {
     storage_tier = optional(string, "Standard")
     access_type  = optional(string, "NoPublicAccess")
   }))
-  default = {
-    default = {
-      name         = "default-bucket"
-      storage_tier = "Standard"
-      access_type  = "NoPublicAccess"
-    }
-  }
+  default = {}
 }
