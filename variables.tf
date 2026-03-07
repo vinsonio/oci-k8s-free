@@ -50,7 +50,12 @@ variable "node_pool_size" {
 variable "node_placement_ads" {
   description = "List of availability domains to place worker nodes"
   type        = list(number)
-  default     = [1]
+  default     = [0]
+
+  validation {
+    condition     = length(var.node_placement_ads) > 0 && alltrue([for ad in var.node_placement_ads : ad >= 0])
+    error_message = "node_placement_ads must be a non-empty list of non-negative, zero-based availability domain indices."
+  }
 }
 
 variable "ssh_public_key" {
