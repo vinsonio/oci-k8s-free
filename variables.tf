@@ -45,6 +45,11 @@ variable "node_pool_size" {
   description = "Number of worker nodes in the node pool"
   type        = number
   default     = 1
+
+  validation {
+    condition     = var.node_pool_size >= 1 && var.node_pool_size <= 4
+    error_message = "node_pool_size must be between 1 and 4 to remain within OCI Always Free A1 limits."
+  }
 }
 
 variable "node_placement_ads" {
@@ -61,6 +66,7 @@ variable "node_placement_ads" {
 variable "ssh_public_key" {
   description = "SSH public key for worker nodes"
   type        = string
+  default     = ""
 }
 
 variable "create_bastion" {
@@ -73,6 +79,11 @@ variable "bastion_client_cidr_allow_list" {
   description = "List of CIDR blocks allowed to access the bastion"
   type        = list(string)
   default     = []
+
+  validation {
+    condition     = (!var.create_bastion) || length(var.bastion_client_cidr_allow_list) > 0
+    error_message = "When create_bastion is true, bastion_client_cidr_allow_list must contain at least one CIDR block."
+  }
 }
 
 variable "create_vpn" {
@@ -108,13 +119,13 @@ variable "create_application_load_balancer" {
 variable "lb_backend_port" {
   description = "Backend port for the load balancer"
   type        = number
-  default     = 80
+  default     = 30080
 }
 
 variable "lb_backend_port_https" {
   description = "Backend HTTPS port for the load balancer"
   type        = number
-  default     = 443
+  default     = 30443
 }
 
 variable "install_ingress_controller" {
