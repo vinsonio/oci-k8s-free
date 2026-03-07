@@ -9,7 +9,7 @@ variable "region" {
 }
 
 variable "region_identifier" {
-  description = "OCI region identifier (e.g., ap-hongkong-1)"
+  description = "Short OCI region identifier used for service gateways (e.g., PHX, ASH)"
   type        = string
 }
 
