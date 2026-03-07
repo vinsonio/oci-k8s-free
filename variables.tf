@@ -32,13 +32,13 @@ variable "image_id" {
 variable "kubernetes_api_public_enabled" {
   description = "Whether the Kubernetes API endpoint should be publicly accessible"
   type        = bool
-  default     = true
+  default     = false
 }
 
 variable "allowed_k8s_api_cidrs" {
-  description = "List of CIDR blocks allowed to access the Kubernetes API (if public)"
+  description = "List of CIDR blocks allowed to access the Kubernetes API (if public). When enabling public access, use tightly scoped admin/VPN/bastion CIDRs."
   type        = list(string)
-  default     = ["0.0.0.0/0"]
+  default     = []
 }
 
 variable "node_pool_size" {
