@@ -106,15 +106,15 @@ variable "create_application_load_balancer" {
 }
 
 variable "lb_backend_port" {
-  description = "Backend port for the load balancer"
+  description = "NodePort on worker nodes that the load balancer forwards HTTP traffic to. Must be in range 30000-32767."
   type        = number
-  default     = 80
+  default     = 30080
 }
 
 variable "lb_backend_port_https" {
-  description = "Backend HTTPS port for the load balancer"
+  description = "NodePort on worker nodes that the load balancer forwards HTTPS traffic to. Must be in range 30000-32767."
   type        = number
-  default     = 443
+  default     = 30443
 }
 
 variable "install_ingress_controller" {
